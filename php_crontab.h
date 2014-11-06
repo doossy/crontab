@@ -21,6 +21,10 @@
 #ifndef PHP_CRONTAB_H
 #define PHP_CRONTAB_H
 
+#include <time.h>
+#include <sys/time.h>
+#include <signal.h>
+
 #include "php.h"
 #include "php_ini.h"
 #include "php_globals.h"

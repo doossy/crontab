@@ -22,11 +22,31 @@ echo "$str\n";
 */
 
 $a = array(
-    '* * 1/10 1-20' => 'a',
+    '* * * * *' => 'callback',
+);
+$b = array(
+    '*/2 * * * *' => function($id){
+        $time = date("Y-m-d H:i:s");
+        echo "hello crtontab b {$id}, {$time}!\n";
+    },
 );
 
 $c = new Crontab();
-$c->add($a);
-$c->add($a);
-$c->add($a);
-$c->add($a);
+var_dump($c->add($a));
+var_dump($c->add($b));
+var_dump($c->add($b));
+var_dump($c->add($b));
+var_dump($c->add($b));
+var_dump($c->add($b));
+var_dump($c->add("* * * * *", "callback"));
+var_dump($c->add("* * * * *", function($id){
+    $time = date("Y-m-d H:i:s");
+    echo "hello crtontab id:{$id}, {$time}!\n";
+}));
+$c->run();
+
+function callback($id) {
+    $time = date("Y-m-d H:i:s");
+    echo "hello crtontab id:{$id}, {$time}!\n";
+    sleep(11);
+}
