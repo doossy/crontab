@@ -366,13 +366,13 @@ static int parse_line(char *str, crontab_t *cron TSRMLS_DC) {
         if(*str == NULL || *str == '\0' || i >= 5) break;
         tokens[i++] = str;
 
-        str += strspn(str, "1234567890,/*-");
+        str += strspn(str, "1234567890,/*-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
         if(*str != '\0') {
             *str = '\0';
         }
         if(str - ptr < n) {
             str++;
-            str = strpbrk(str, "1234567890,/*-");
+            str = strpbrk(str, "1234567890,/*-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
         }
     }while(1);
 
