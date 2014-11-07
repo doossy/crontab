@@ -543,7 +543,7 @@ static int flag_line(uintptr_t t1, uintptr_t t2 TSRMLS_DC) {
                         
                         if (call_user_function_ex(EG(function_table), NULL, current->callback, &retval, 1, params, 0, NULL TSRMLS_CC) == FAILURE)
                         {
-                            php_error_docref(NULL TSRMLS_CC, E_WARNING, "swoole_server: onStart handler error");
+                            php_error_docref(NULL TSRMLS_CC, E_WARNING, "call user function(id:%d) failed!", current->index);
                         }
                         exit(0);
                 }
