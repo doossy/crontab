@@ -216,7 +216,7 @@ PHP_METHOD(crontab_ce, add) {
 PHP_METHOD(crontab_ce, run) {
     sigset_t            set;
     struct itimerval    itv;
-    uintptr_t            now;
+    uintptr_t            now, timer;
     pid_t                pid;
     
     signal(SIGALRM, sigroutine);
@@ -235,10 +235,14 @@ PHP_METHOD(crontab_ce, run) {
     last_time = time(NULL);
 
     for(;;) {
-        itv.it_interval.tv_sec = 0;
-        itv.it_interval.tv_usec = 0;
-        itv.it_value.tv_sec = 1;
-        itv.it_value.tv_usec = 0;
+		timer = 60 - time(NULL) % 60;
+		timer *= 1000;
+
+
+		itv.it_interval.tv_sec = 0;
+		itv.it_interval.tv_usec = 0;
+		itv.it_value.tv_sec = timer / 1000;
+		itv.it_value.tv_usec = (timer % 1000) * 1000;
 
         if ( setitimer(ITIMER_REAL, &itv, NULL) == -1 ) {
             php_error_docref(NULL TSRMLS_CC, E_ERROR, "setitimer() failed");
