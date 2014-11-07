@@ -235,14 +235,14 @@ PHP_METHOD(crontab_ce, run) {
     last_time = time(NULL);
 
     for(;;) {
-		timer = 60 - time(NULL) % 60;
-		timer *= 1000;
+        timer = 60 - time(NULL) % 60;
+        timer *= 1000;
 
 
-		itv.it_interval.tv_sec = 0;
-		itv.it_interval.tv_usec = 0;
-		itv.it_value.tv_sec = timer / 1000;
-		itv.it_value.tv_usec = (timer % 1000) * 1000;
+        itv.it_interval.tv_sec = 0;
+        itv.it_interval.tv_usec = 0;
+        itv.it_value.tv_sec = timer / 1000;
+        itv.it_value.tv_usec = (timer % 1000) * 1000;
 
         if ( setitimer(ITIMER_REAL, &itv, NULL) == -1 ) {
             php_error_docref(NULL TSRMLS_CC, E_ERROR, "setitimer() failed");
