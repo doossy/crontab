@@ -49,16 +49,16 @@ static const char monthsAry[] ALIGN1 =
 
 typedef struct crontab_s crontab_t;
 struct crontab_s {
-	char                        weeks[7];           /* 0-6, beginning sunday */
-	char                        months[12];         /* 0-11 */
-	char                        hours[24];          /* 0-23 */
-	char                        days[32];           /* 1-31 */
-	char                        minutes[60];        /* 0-59 */
+    char                        weeks[7];           /* 0-6, beginning sunday */
+    char                        months[12];         /* 0-11 */
+    char                        hours[24];          /* 0-23 */
+    char                        days[32];           /* 1-31 */
+    char                        minutes[60];        /* 0-59 */
 
     char                        *name;
     zval                        *callback;
 
-	int							index;
+    int                            index;
     crontab_t                   *next;
 };
 
@@ -142,7 +142,7 @@ PHP_METHOD(crontab_ce, __destruct) {
 PHP_METHOD(crontab_ce, add) {
     zval *argv1, *argv2;
     int n, l, i;
-	int idx;
+    int idx;
     zval **val;
     char *key, *key1;
     crontab_t *cb;
@@ -153,117 +153,117 @@ PHP_METHOD(crontab_ce, add) {
             // foreach argv1
             l = zend_hash_num_elements(Z_ARRVAL_P(argv1));
             zend_hash_internal_pointer_reset(Z_ARRVAL_P(argv1));
-			array_init(return_value);
+            array_init(return_value);
             for(i = 0; i < l; i++) {
                 if(zend_hash_get_current_key(Z_ARRVAL_P(argv1), &key, &idx, 0) == HASH_KEY_IS_STRING) {
                     // is al
                     cb = emalloc(sizeof(crontab_t));
-					memset(cb, 0, sizeof(crontab_t));
+                    memset(cb, 0, sizeof(crontab_t));
 
-					key1 = estrdup(key);
+                    key1 = estrdup(key);
                     n = parse_line(key1, cb TSRMLS_CC);
-					efree(key1);
+                    efree(key1);
 
-					crontab_last->next = cb;
+                    crontab_last->next = cb;
                     crontab_last = cb;
 
                     zend_hash_get_current_data(Z_ARRVAL_P(argv1), (void**)&val);
 
-					cb->callback = *val;
+                    cb->callback = *val;
 
-					zval_copy_ctor(&cb->callback);
+                    zval_copy_ctor(&cb->callback);
 
-					add_next_index_long(return_value, ++crontab_count);
-					cb->index = crontab_count;
+                    add_next_index_long(return_value, ++crontab_count);
+                    cb->index = crontab_count;
                 } else {
                     php_error_docref(NULL TSRMLS_CC, E_WARNING, "Invalid args(array key must be string).");
                 }
 
-				zend_hash_move_forward(Z_ARRVAL_P(argv1));
+                zend_hash_move_forward(Z_ARRVAL_P(argv1));
             } // for i
         } else {// IS_ARRAY
-			if(ZEND_NUM_ARGS() < 2) {
-				php_error_docref(NULL TSRMLS_CC, E_WARNING, "Invalid args2.");
-				RETURN_FALSE;
-			}
+            if(ZEND_NUM_ARGS() < 2) {
+                php_error_docref(NULL TSRMLS_CC, E_WARNING, "Invalid args2.");
+                RETURN_FALSE;
+            }
 
-			cb = emalloc(sizeof(crontab_t));
-			memset(cb, 0, sizeof(crontab_t));
+            cb = emalloc(sizeof(crontab_t));
+            memset(cb, 0, sizeof(crontab_t));
 
-			key1 = estrdup(Z_STRVAL_P(argv1));
-			n = parse_line(key1, cb TSRMLS_CC);
-			efree(key1);
+            key1 = estrdup(Z_STRVAL_P(argv1));
+            n = parse_line(key1, cb TSRMLS_CC);
+            efree(key1);
 
-			crontab_last->next = cb;
-			crontab_last = cb;
+            crontab_last->next = cb;
+            crontab_last = cb;
 
-			cb->callback = emalloc(sizeof(zval));
-			memset(cb->callback, 0, sizeof(zval));
+            cb->callback = emalloc(sizeof(zval));
+            memset(cb->callback, 0, sizeof(zval));
 
-			*(cb->callback) = *argv2;
+            *(cb->callback) = *argv2;
 
-			zval_copy_ctor(cb->callback);
-			crontab_count++;
-			cb->index = crontab_count;
-			RETURN_LONG(crontab_count);
+            zval_copy_ctor(cb->callback);
+            crontab_count++;
+            cb->index = crontab_count;
+            RETURN_LONG(crontab_count);
         }
     } else {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Invalid args.");
-		RETURN_FALSE;
+        php_error_docref(NULL TSRMLS_CC, E_WARNING, "Invalid args.");
+        RETURN_FALSE;
     }
 }
 
 PHP_METHOD(crontab_ce, run) {
     sigset_t            set;
     struct itimerval    itv;
-	uintptr_t			now;
-	pid_t				pid;
-	
-	signal(SIGALRM, sigroutine);
-	signal(SIGVTALRM, sigroutine);
+    uintptr_t            now;
+    pid_t                pid;
+    
+    signal(SIGALRM, sigroutine);
+    signal(SIGVTALRM, sigroutine);
 
     sigemptyset(&set);
     sigaddset(&set, SIGALRM);
 
     if ( sigprocmask(SIG_BLOCK, &set, NULL) == -1 ) {
         php_error_docref(NULL TSRMLS_CC, E_ERROR, "sigpromask() failed");
-		RETURN_FALSE;
+        RETURN_FALSE;
     }
 
     sigemptyset(&set);
 
-	last_time = time(NULL);
+    last_time = time(NULL);
 
-	for(;;) {
-		itv.it_interval.tv_sec = 0;
-		itv.it_interval.tv_usec = 0;
-		itv.it_value.tv_sec = 1;
-		itv.it_value.tv_usec = 0;
+    for(;;) {
+        itv.it_interval.tv_sec = 0;
+        itv.it_interval.tv_usec = 0;
+        itv.it_value.tv_sec = 1;
+        itv.it_value.tv_usec = 0;
 
-		if ( setitimer(ITIMER_REAL, &itv, NULL) == -1 ) {
-			php_error_docref(NULL TSRMLS_CC, E_ERROR, "setitimer() failed");
-			RETURN_FALSE;
-		}
+        if ( setitimer(ITIMER_REAL, &itv, NULL) == -1 ) {
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "setitimer() failed");
+            RETURN_FALSE;
+        }
 
         sigsuspend(&set);
 
-		now = time(NULL);
-		flag_line(last_time, now TSRMLS_CC);
+        now = time(NULL);
+        flag_line(last_time, now TSRMLS_CC);
 
-		for(;;) {
-			pid = waitpid(-1, NULL, WNOHANG);
-			if ( pid == 0 ) {
-				break;
-			}
+        for(;;) {
+            pid = waitpid(-1, NULL, WNOHANG);
+            if ( pid == 0 ) {
+                break;
+            }
 
-			if ( pid == -1 ) {
-				if ( errno == EINTR ) {
-					continue;
-				}
-				break;
-			}
-		}// for
-	}
+            if ( pid == -1 ) {
+                if ( errno == EINTR ) {
+                    continue;
+                }
+                break;
+            }
+        }// for
+    }
 }
 
 PHP_METHOD(crontab_ce, info) {
@@ -271,11 +271,11 @@ PHP_METHOD(crontab_ce, info) {
 }
 
 zend_function_entry crontab_methods[] = {
-    PHP_ME(crontab_ce, __construct, 			NULL, 	ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)	//	final protected __construct
-    PHP_ME(crontab_ce, __destruct, 			NULL, 	ZEND_ACC_PUBLIC | ZEND_ACC_DTOR)	//	final public __destruct
-    PHP_ME(crontab_ce, add,      			NULL, 	ZEND_ACC_PUBLIC )	//	static public final getInstance
-    PHP_ME(crontab_ce, run,      			NULL, 	ZEND_ACC_PUBLIC )	//	static public final getInstance
-    PHP_ME(crontab_ce, info,      			NULL, 	ZEND_ACC_PUBLIC )	//	static public final getInstance
+    PHP_ME(crontab_ce, __construct,             NULL,     ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)    //    final protected __construct
+    PHP_ME(crontab_ce, __destruct,             NULL,     ZEND_ACC_PUBLIC | ZEND_ACC_DTOR)    //    final public __destruct
+    PHP_ME(crontab_ce, add,                  NULL,     ZEND_ACC_PUBLIC )    //    static public final getInstance
+    PHP_ME(crontab_ce, run,                  NULL,     ZEND_ACC_PUBLIC )    //    static public final getInstance
+    PHP_ME(crontab_ce, info,                  NULL,     ZEND_ACC_PUBLIC )    //    static public final getInstance
     {NULL, NULL, NULL}
 };
 
@@ -292,10 +292,10 @@ PHP_MINIT_FUNCTION(crontab)
     crontab_ce = zend_register_internal_class(&ce TSRMLS_CC);
 
     crontab_head = emalloc(sizeof(crontab_t));
-	memset(crontab_head, 0, sizeof(crontab_t));
+    memset(crontab_head, 0, sizeof(crontab_t));
     crontab_last = crontab_head;
 
-	crontab_count = 0;
+    crontab_count = 0;
 
     return SUCCESS;
 }
@@ -509,14 +509,14 @@ static int parse_field(char *ary, int modvalue, int off, const char *names, char
 }
 
 static int flag_line(uintptr_t t1, uintptr_t t2 TSRMLS_DC) {
-	uintptr_t t;
+    uintptr_t t;
     struct tm *ptm;
-	crontab_t *current;
-	zval *retval, *idx;
-	zval **params[1];
-	int i = 0;
+    crontab_t *current;
+    zval *retval, *idx;
+    zval **params[1];
+    int i = 0;
 
-	current = crontab_head->next;
+    current = crontab_head->next;
 
     for (t = t1 - t1 % 60; t <= t2; t += 60) {
         if (t <= t1) continue;
@@ -525,38 +525,38 @@ static int flag_line(uintptr_t t1, uintptr_t t2 TSRMLS_DC) {
 
         ptm = (struct tm *)localtime(&t);
 
-		while(current != NULL) {
+        while(current != NULL) {
             if ( current->minutes[ptm->tm_min]
              && current->hours[ptm->tm_hour]
              && (current->days[ptm->tm_mday] || current->weeks[ptm->tm_wday])
              && current->months[ptm->tm_mon]
             ) {
-				// 这里开起子进程跑
-				
-				switch(fork()) {
-					case -1:
-						php_error_docref(NULL TSRMLS_CC, E_ERROR, "run crontab error: fork process failed!");
-						return FAILURE;
-					case 0:
-						MAKE_STD_ZVAL(idx);
-						ZVAL_LONG(idx, current->index);
-						params[0] = &idx;
-						
-						if (call_user_function_ex(EG(function_table), NULL, current->callback, &retval, 1, params, 0, NULL TSRMLS_CC) == FAILURE)
-						{
-							php_error_docref(NULL TSRMLS_CC, E_WARNING, "swoole_server: onStart handler error");
-						}
-						exit(0);
-				}
-			}
-			
-			current = current->next;
-		}
+                // 这里开起子进程跑
+                
+                switch(fork()) {
+                    case -1:
+                        php_error_docref(NULL TSRMLS_CC, E_ERROR, "run crontab error: fork process failed!");
+                        return FAILURE;
+                    case 0:
+                        MAKE_STD_ZVAL(idx);
+                        ZVAL_LONG(idx, current->index);
+                        params[0] = &idx;
+                        
+                        if (call_user_function_ex(EG(function_table), NULL, current->callback, &retval, 1, params, 0, NULL TSRMLS_CC) == FAILURE)
+                        {
+                            php_error_docref(NULL TSRMLS_CC, E_WARNING, "swoole_server: onStart handler error");
+                        }
+                        exit(0);
+                }
+            }
+            
+            current = current->next;
+        }
 
-		current = crontab_head->next;
+        current = crontab_head->next;
     }
 
-	return SUCCESS;
+    return SUCCESS;
 }
 
 /* The previous line is meant for vim and emacs, so it can correctly fold and 
