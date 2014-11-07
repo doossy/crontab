@@ -531,8 +531,7 @@ static int flag_line(uintptr_t t1, uintptr_t t2 TSRMLS_DC) {
              && (current->days[ptm->tm_mday] || current->weeks[ptm->tm_wday])
              && current->months[ptm->tm_mon]
             ) {
-                // 这里开起子进程跑
-                
+                // fork && run callback 
                 switch(fork()) {
                     case -1:
                         php_error_docref(NULL TSRMLS_CC, E_ERROR, "run crontab error: fork process failed!");
