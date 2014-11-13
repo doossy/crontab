@@ -55,10 +55,11 @@ struct crontab_s {
     char                        days[32];           /* 1-31 */
     char                        minutes[60];        /* 0-59 */
 
-    char                        *name;
+    char                        *execute;
     zval                        *callback;
 
-    int                            index;
+    int                         index;
+    int                         count;
     crontab_t                   *next;
 };
 
@@ -160,6 +161,9 @@ PHP_METHOD(crontab_ce, add) {
                     cb = emalloc(sizeof(crontab_t));
                     memset(cb, 0, sizeof(crontab_t));
 
+                    cb->execute = estrdup(key);
+                    cb->count = 0;
+
                     key1 = estrdup(key);
                     n = parse_line(key1, cb TSRMLS_CC);
                     efree(key1);
@@ -189,6 +193,9 @@ PHP_METHOD(crontab_ce, add) {
 
             cb = emalloc(sizeof(crontab_t));
             memset(cb, 0, sizeof(crontab_t));
+
+            cb->execute = estrdup(Z_STRVAL_P(argv1));
+            cb->count = 0;
 
             key1 = estrdup(Z_STRVAL_P(argv1));
             n = parse_line(key1, cb TSRMLS_CC);
@@ -271,7 +278,23 @@ PHP_METHOD(crontab_ce, run) {
 }
 
 PHP_METHOD(crontab_ce, info) {
+    crontab_t *current;
+    zval *row;
 
+    array_init(return_value);
+
+    current = crontab_head->next;
+    while(current != NULL) {
+        MAKE_STD_ZVAL(row);
+        array_init(row);
+        add_assoc_long(row, "id", current->index);
+        add_assoc_string(row, "execute", current->execute, 1);
+        add_assoc_long(row, "count", current->count);
+        
+        add_next_index_zval(return_value, row);
+
+        current = current->next;
+    }
 }
 
 zend_function_entry crontab_methods[] = {
@@ -279,7 +302,7 @@ zend_function_entry crontab_methods[] = {
     PHP_ME(crontab_ce, __destruct,             NULL,     ZEND_ACC_PUBLIC | ZEND_ACC_DTOR)    //    final public __destruct
     PHP_ME(crontab_ce, add,                  NULL,     ZEND_ACC_PUBLIC )    //    static public final getInstance
     PHP_ME(crontab_ce, run,                  NULL,     ZEND_ACC_PUBLIC )    //    static public final getInstance
-    PHP_ME(crontab_ce, info,                  NULL,     ZEND_ACC_PUBLIC )    //    static public final getInstance
+    PHP_ME(crontab_ce, info,                  NULL,     ZEND_ACC_PUBLIC | ZEND_ACC_STATIC )    //    static public final getInstance
     {NULL, NULL, NULL}
 };
 
@@ -550,6 +573,8 @@ static int flag_line(uintptr_t t1, uintptr_t t2 TSRMLS_DC) {
                             php_error_docref(NULL TSRMLS_CC, E_WARNING, "call user function(id:%d) failed!", current->index);
                         }
                         exit(0);
+                    default:
+                        current->count++;
                 }
             }
             

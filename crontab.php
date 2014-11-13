@@ -21,8 +21,13 @@ if (extension_loaded($module)) {
 echo "$str\n";
 */
 
+$c = new Crontab();
+
 $a = array(
     '* * * * *' => 'callback',
+    '*/1 * * * *' => function($id){
+        print_r(Crontab::info());
+    },
 );
 $b = array(
     '*/2 * * * *' => function($id){
@@ -31,7 +36,6 @@ $b = array(
     },
 );
 
-$c = new Crontab();
 var_dump($c->add($a));
 var_dump($c->add($b));
 var_dump($c->add($b));
@@ -43,6 +47,7 @@ var_dump($c->add("* * * * *", function($id){
     $time = date("Y-m-d H:i:s");
     echo "hello crtontab id:{$id}, {$time}!\n";
 }));
+var_dump($c->info());
 $c->run();
 
 function callback($id) {
