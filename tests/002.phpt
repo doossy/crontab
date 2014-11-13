@@ -18,7 +18,6 @@ $ar = array(
     '1-10/5, 1,2 * * *' => 'callback'
 );
 print_r($crontab->add($ar));
-echo "\n";
 print_r(Crontab::info());
 /*
 	you can add regression tests for your extension here
@@ -40,7 +39,6 @@ Array
     [0] => 2
     [1] => 3
 )
-
 Array
 (
     [0] => Array
