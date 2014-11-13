@@ -9,6 +9,7 @@ phpize
 ./configure 
 make && make install
 ```
+`make install` copies `crontab.so` to an appropriate location, but you still need to enable the module in the PHP config file. To do so, either edit your php.ini with the following contents: `extension=crontab.so`.
 
 ### Class Crontab
 ```
