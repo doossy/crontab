@@ -5,9 +5,9 @@ php crontab
 
 ### Compile crontab in Linux
 ```
-$/path/to/phpize
-$./configure --with-php-config=/path/to/php-config
-$make && make install
+phpize
+./configure 
+make && make install
 ```
 
 ### Class Crontab
