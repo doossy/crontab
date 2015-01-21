@@ -18,6 +18,8 @@
 
 /* $Id$ */
 
+#include <stdint.h>
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -564,6 +566,7 @@ static int flag_line(uintptr_t t1, uintptr_t t2 TSRMLS_DC) {
                         php_error_docref(NULL TSRMLS_CC, E_ERROR, "run crontab(id:%d) error: fork process failed!", current->index);
                         return FAILURE;
                     case 0:
+						current->count++;
                         MAKE_STD_ZVAL(idx);
                         ZVAL_LONG(idx, current->index);
                         params[0] = &idx;
