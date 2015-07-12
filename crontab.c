@@ -60,6 +60,9 @@ struct crontab_s {
     char                        *execute;
     zval                        *callback;
 
+	int							intval;
+	pid_t						pid;
+
     int                         index;
     int                         count;
     crontab_t                   *next;
@@ -143,14 +146,14 @@ PHP_METHOD(crontab_ce, __destruct) {
 }
 
 PHP_METHOD(crontab_ce, add) {
-    zval *argv1, *argv2;
+    zval *argv1, *argv2, *argv3;
     int n, l, i;
     int idx;
     zval **val;
     char *key, *key1;
     crontab_t *cb;
 
-    if( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|z", &argv1, &argv2) == SUCCESS ){
+    if( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|zz", &argv1, &argv2, &argv3) == SUCCESS ){
         // if array
         if (Z_TYPE_P(argv1) == IS_ARRAY) {
             // foreach argv1
@@ -193,27 +196,33 @@ PHP_METHOD(crontab_ce, add) {
                 RETURN_FALSE;
             }
 
-            cb = emalloc(sizeof(crontab_t));
-            memset(cb, 0, sizeof(crontab_t));
+			cb = emalloc(sizeof(crontab_t));
+			memset(cb, 0, sizeof(crontab_t));
+			cb->execute = estrdup(Z_STRVAL_P(argv1));
+			cb->count = 0;
 
-            cb->execute = estrdup(Z_STRVAL_P(argv1));
-            cb->count = 0;
+			key1 = estrdup(Z_STRVAL_P(argv1));
+			n = parse_line(key1, cb TSRMLS_CC);
+			efree(key1);
 
-            key1 = estrdup(Z_STRVAL_P(argv1));
-            n = parse_line(key1, cb TSRMLS_CC);
-            efree(key1);
+			crontab_last->next = cb;
+			crontab_last = cb;
 
-            crontab_last->next = cb;
-            crontab_last = cb;
+			cb->callback = emalloc(sizeof(zval));
+			memset(cb->callback, 0, sizeof(zval));
 
-            cb->callback = emalloc(sizeof(zval));
-            memset(cb->callback, 0, sizeof(zval));
+			*(cb->callback) = *argv2;
 
-            *(cb->callback) = *argv2;
+			zval_copy_ctor(cb->callback);
+			crontab_count++;
+			cb->index = crontab_count;
 
-            zval_copy_ctor(cb->callback);
-            crontab_count++;
-            cb->index = crontab_count;
+			if(ZEND_NUM_ARGS() == 3) {
+				cb->intval = Z_LVAL_P(argv3);
+			}else{
+				cb->intval = -1;
+			}
+
             RETURN_LONG(crontab_count);
         }
     } else {
@@ -275,6 +284,13 @@ PHP_METHOD(crontab_ce, run) {
                 }
                 break;
             }
+
+			while(current != NULL){
+				if(current->pid == pid) {
+					current->pid = -1;
+					break;
+				}
+			}
         }// for
     }
 }
@@ -544,24 +560,26 @@ static int flag_line(uintptr_t t1, uintptr_t t2 TSRMLS_DC) {
     zval *retval, *idx;
     zval **params[1];
     int i = 0;
+	pid_t pid;
 
     current = crontab_head->next;
 
-    for (t = t1 - t1 % 60; t <= t2; t += 60) {
+    for (t = t1 - t1 % 60; t <= t2; t += 60){
         if (t <= t1) continue;
 
         last_time = t;
 
         ptm = (struct tm *)localtime(&t);
 
-        while(current != NULL) {
-            if ( current->minutes[ptm->tm_min]
+        while(current != NULL){
+            if ( (current->pid == -1) && (current->intval > -1 || (current->minutes[ptm->tm_min]
              && current->hours[ptm->tm_hour]
              && (current->days[ptm->tm_mday] || current->weeks[ptm->tm_wday])
-             && current->months[ptm->tm_mon]
-            ) {
+             && current->months[ptm->tm_mon]))
+            ){
                 // fork && run callback 
-                switch(fork()) {
+				pid = fork();
+                switch(pid){
                     case -1:
                         php_error_docref(NULL TSRMLS_CC, E_ERROR, "run crontab(id:%d) error: fork process failed!", current->index);
                         return FAILURE;
@@ -571,12 +589,12 @@ static int flag_line(uintptr_t t1, uintptr_t t2 TSRMLS_DC) {
                         ZVAL_LONG(idx, current->index);
                         params[0] = &idx;
                         
-                        if (call_user_function_ex(EG(function_table), NULL, current->callback, &retval, 1, params, 0, NULL TSRMLS_CC) == FAILURE)
-                        {
+                        if(call_user_function_ex(EG(function_table), NULL, current->callback, &retval, 1, params, 0, NULL TSRMLS_CC) == FAILURE){
                             php_error_docref(NULL TSRMLS_CC, E_WARNING, "call user function(id:%d) failed!", current->index);
                         }
                         exit(0);
                     default:
+						current->pid = pid;
                         current->count++;
                 }
             }
