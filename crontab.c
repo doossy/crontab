@@ -236,6 +236,9 @@ PHP_METHOD(crontab_ce, run) {
     struct itimerval    itv;
     uintptr_t            now, timer;
     pid_t                pid;
+    crontab_t *current;
+
+    current = crontab_head->next;
     
     signal(SIGALRM, sigroutine);
     signal(SIGVTALRM, sigroutine);
