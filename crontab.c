@@ -234,9 +234,9 @@ PHP_METHOD(crontab_ce, add) {
 PHP_METHOD(crontab_ce, run) {
     sigset_t            set;
     struct itimerval    itv;
-    uintptr_t            now, timer;
-    pid_t                pid;
-    crontab_t *current;
+    uintptr_t           now, timer;
+    pid_t               pid;
+    crontab_t           *current;
 
     current = crontab_head->next;
     
@@ -320,10 +320,10 @@ PHP_METHOD(crontab_ce, info) {
 
 zend_function_entry crontab_methods[] = {
     PHP_ME(crontab_ce, __construct,             NULL,     ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)    //    final protected __construct
-    PHP_ME(crontab_ce, __destruct,             NULL,     ZEND_ACC_PUBLIC | ZEND_ACC_DTOR)    //    final public __destruct
-    PHP_ME(crontab_ce, add,                  NULL,     ZEND_ACC_PUBLIC )    //    static public final getInstance
-    PHP_ME(crontab_ce, run,                  NULL,     ZEND_ACC_PUBLIC )    //    static public final getInstance
-    PHP_ME(crontab_ce, info,                  NULL,     ZEND_ACC_PUBLIC | ZEND_ACC_STATIC )    //    static public final getInstance
+    PHP_ME(crontab_ce, __destruct,              NULL,     ZEND_ACC_PUBLIC | ZEND_ACC_DTOR)    //    final public __destruct
+    PHP_ME(crontab_ce, add,                     NULL,     ZEND_ACC_PUBLIC )    //    static public final getInstance
+    PHP_ME(crontab_ce, run,                     NULL,     ZEND_ACC_PUBLIC )    //    static public final getInstance
+    PHP_ME(crontab_ce, info,                    NULL,     ZEND_ACC_PUBLIC | ZEND_ACC_STATIC )    //    static public final getInstance
     {NULL, NULL, NULL}
 };
 
