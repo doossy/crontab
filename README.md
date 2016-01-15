@@ -3,6 +3,8 @@ crontab
 
 php crontab
 
+[![Build Status](https://secure.travis-ci.org/doossy/crontab.svg?branch=master)](http://travis-ci.org/doossy/crontab)
+
 ### Compile crontab in Linux
 ```
 phpize
