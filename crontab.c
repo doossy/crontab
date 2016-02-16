@@ -242,9 +242,11 @@ PHP_METHOD(crontab_ce, run) {
     
     signal(SIGALRM, sigroutine);
     signal(SIGVTALRM, sigroutine);
+    signal(SIGCHLD, sigroutine);
 
     sigemptyset(&set);
     sigaddset(&set, SIGALRM);
+    sigaddset(&set, SIGCHLD);
 
     if ( sigprocmask(SIG_BLOCK, &set, NULL) == -1 ) {
         php_error_docref(NULL TSRMLS_CC, E_ERROR, "sigpromask() failed");
@@ -274,27 +276,6 @@ PHP_METHOD(crontab_ce, run) {
 
         now = time(NULL);
         flag_line(last_time, now TSRMLS_CC);
-
-        for(;;) {
-            pid = waitpid(-1, NULL, WNOHANG);
-            if ( pid == 0 ) {
-                break;
-            }
-
-            if ( pid == -1 ) {
-                if ( errno == EINTR ) {
-                    continue;
-                }
-                break;
-            }
-
-            while(current != NULL){
-                if(current->pid == pid) {
-                    current->pid = -1;
-                    break;
-                }
-            }
-        }// for
     }
 }
 
@@ -394,6 +375,33 @@ PHP_MINFO_FUNCTION(crontab)
 
 // do nothing
 static void sigroutine(int signo) {
+    pid_t pid;
+    crontab_t *current;
+
+    if(signo == SIGCHLD){
+        for(;;) {
+            pid = waitpid(-1, NULL, WNOHANG);
+            if ( pid == 0 ) {
+                break;
+            }
+
+            if ( pid == -1 ) {
+                if ( errno == EINTR ) {
+                    continue;
+                }
+                break;
+            }
+
+            current = crontab_head->next;
+            while(current != NULL){
+                if(current->pid == pid) {
+                    current->pid = -1;
+                    break;
+                }
+                current = current->next;
+            }
+        }// for
+    } // if SIGCHLD
 }
 
 static int parse_line(char *str, crontab_t *cron TSRMLS_DC) {
