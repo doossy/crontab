@@ -5,6 +5,8 @@ php crontab
 
 [![Build Status](https://secure.travis-ci.org/doossy/crontab.svg?branch=master)](http://travis-ci.org/doossy/crontab)
 
+[php 7 support](https://github.com/doossy/crontab/tree/php7)
+
 ### Compile crontab in Linux
 ```
 phpize
