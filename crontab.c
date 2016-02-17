@@ -165,6 +165,7 @@ PHP_METHOD(crontab_ce, add) {
                     // is al
                     cb = emalloc(sizeof(crontab_t));
                     memset(cb, 0, sizeof(crontab_t));
+                    cb->pid = -1;
 
                     cb->execute = estrdup(key);
                     cb->count = 0;
@@ -198,6 +199,8 @@ PHP_METHOD(crontab_ce, add) {
 
             cb = emalloc(sizeof(crontab_t));
             memset(cb, 0, sizeof(crontab_t));
+            cb->pid = -1;
+
             cb->execute = estrdup(Z_STRVAL_P(argv1));
             cb->count = 0;
 
@@ -258,9 +261,9 @@ PHP_METHOD(crontab_ce, run) {
     last_time = time(NULL);
 
     for(;;) {
+
         timer = 60 - time(NULL) % 60;
         timer *= 1000;
-
 
         itv.it_interval.tv_sec = 0;
         itv.it_interval.tv_usec = 0;

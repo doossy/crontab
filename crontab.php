@@ -1,4 +1,6 @@
 <?php
+echo date('Y-m-d H:i:s');
+echo "\n";
 /*
 $br = (php_sapi_name() == "cli")? "":"<br>";
 
