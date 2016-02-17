@@ -56,7 +56,7 @@ struct crontab_s {
     char                        days[32];           /* 1-31 */
     char                        minutes[60];        /* 0-59 */
 
-    zend_string                *execute;
+    zend_string                 *execute;
 
     zval                        *callback;
 
