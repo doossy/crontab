@@ -376,7 +376,6 @@ PHP_MINFO_FUNCTION(crontab)
 }
 /* }}} */
 
-// do nothing
 static void sigroutine(int signo) {
     pid_t pid;
     crontab_t *current;
@@ -402,7 +401,7 @@ static void sigroutine(int signo) {
                     break;
                 }
                 current = current->next;
-            }
+            } // while current
         }// for
     } // if SIGCHLD
 }
@@ -430,6 +429,11 @@ static int parse_line(char *str, crontab_t *cron TSRMLS_DC) {
             str = strpbrk(str, "1234567890,/*-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
         }
     }while(1);
+
+    // check
+    if(i != 5){
+        php_error_docref(NULL, E_ERROR, "Invaild crontab line: %s", ptr);
+    }
 
     parse_field(cron->minutes, 60, 0, NULL, tokens[0] TSRMLS_CC);
     parse_field(cron->hours, 24, 0, NULL, tokens[1] TSRMLS_CC);
