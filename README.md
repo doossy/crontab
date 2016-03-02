@@ -4,7 +4,7 @@ crontab
 php crontab
 
 [![Build Status](https://secure.travis-ci.org/doossy/crontab.svg?branch=master)](http://travis-ci.org/doossy/crontab)
-[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](http://gabrielrcouto.mit-license.org/)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](http://recoye.mit-license.org/)
 
 [php 7 support](https://github.com/doossy/crontab/tree/php7)
 
